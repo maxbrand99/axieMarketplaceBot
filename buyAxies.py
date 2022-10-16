@@ -1,11 +1,10 @@
+import json
 import time
 import traceback
 import requests
 from web3 import Web3
-import json
 import AccessToken
 import txUtils
-import GetAxieGenes512Custom
 
 # DO NOT TOUCH ANYTHING IN THIS FILE OR YOU WILL BREAK IT.
 if True:
@@ -54,15 +53,16 @@ if True:
             raise SystemExit
         address = Web3.toChecksumAddress(json_data['address'].replace("ronin:", "0x"))
         accessToken = AccessToken.GenerateAccessToken(key, address)
-        if not (str(type(json_data['buyPrice']))=="<class 'float'>" or str(type(json_data['buyPrice']))=="<class 'int'>"):
+        if not (str(type(json_data['buyPrice'])) == "<class 'float'>" or str(
+                type(json_data['buyPrice'])) == "<class 'int'>"):
             print("Invalid buy price entered. Must be a number (either decimal or whole number). Exiting.")
             raise SystemExit
         price = Web3.toWei(json_data['buyPrice'], 'ether')
-        if not str(type(json_data['gasPrice']))=="<class 'int'>":
+        if not str(type(json_data['gasPrice'])) == "<class 'int'>":
             print("Invalid gas price entered. Must be a whole number. Exiting.")
             raise SystemExit
         gasPrice = json_data['gasPrice']
-        if not str(type(json_data['numAxies']))=="<class 'int'>":
+        if not str(type(json_data['numAxies'])) == "<class 'int'>":
             print("Invalid num axies entered. Must be a whole number. Exiting.")
             raise SystemExit
         numAxies = json_data['numAxies']
@@ -144,71 +144,71 @@ def buyAxie(axie):
     return signedTx
 
 
-def checkAxie(axie):
-    if filterClass is not None:
-        axieClass = axie['class']
-        if not axieClass in filterClass:
-            print("something is wrong with class, axie does match filter.")
-            raise SystemExit
-    if filterBody is not None:
-        axieBody = axie['bodyShape']
-        if not axieBody in filterBody:
-            print("something is wrong with bodyShape, axie does match filter.")
-            raise SystemExit
-    if filterStage is not None:
-        axieStage = axie['stage']
-        if not axieStage in filterStage:
-            print("something is wrong with stage, axie does match filter.")
-            raise SystemExit
-    if filterTitle is not None:
-        axieTitle = axie['title']
-        if not axieTitle in filterTitle:
-            print("something is wrong with title, axie does match filter.")
-            raise SystemExit
-    # TODO: FIX BREED COUNT.
-    if filterBreedCount is not None:
-        axieBreeds = axie['breedCount']
-        if not axieBreeds in filterBreedCount:
-            print("something is wrong with breed count, axie does match filter.")
-            raise SystemExit
-    if checkPotential:
-        axiePotential = axie['potentialPoints']
-        for axieClass in axiePotential:
-            if filterPotential[axieClass] is None:
-                continue
-            else:
-                if axiePotential[axieClass] != filterPotential[axieClass][0]:
-                    print("something is wrong with potential points, axie does match filter.")
-                    raise SystemExit
-    # filterParts = myFilter['parts']
-    # TODO: FIX AXIE PURITY / PURENESS FILTER
-    # filterPureness = myFilter['pureness']
-    # axiePurity = 0
-    axieSpecial = {
-        "mystic": 0,
-        "japan": 0,
-        "xmas": 0,
-        "summer": 0,
-        "shiny": 0
-    }
-    genes = json.loads(GetAxieGenes512Custom.getAxieGeneImage512(axie['newGenes']))
-    # TODO: FIX AXIE PART FILTER
-    # checkParts = False
-    # if filterParts is not None:
-    #     checkParts = True
-    #     partsChecked = True
-    for gene in genes:
-        if genes[gene]['d']['specialGenes'] is not None:
-            axieSpecial[genes[gene]['d']['specialGenes']] += 1
-        # if filterParts is not None:
-
-    if filterRegion is not None:
-        if axieSpecial['japan'] < 1:
-            print("something is wrong with region, axie does match filter.")
-            raise SystemExit
-
-    # print(axieSpecial)
-    return buyAxie(axie)
+# def checkAxie(axie):
+#     if filterClass is not None:
+#         axieClass = axie['class']
+#         if not axieClass in filterClass:
+#             print("something is wrong with class, axie does match filter.")
+#             raise SystemExit
+#     if filterBody is not None:
+#         axieBody = axie['bodyShape']
+#         if not axieBody in filterBody:
+#             print("something is wrong with bodyShape, axie does match filter.")
+#             raise SystemExit
+#     if filterStage is not None:
+#         axieStage = axie['stage']
+#         if not axieStage in filterStage:
+#             print("something is wrong with stage, axie does match filter.")
+#             raise SystemExit
+#     if filterTitle is not None:
+#         axieTitle = axie['title']
+#         if not axieTitle in filterTitle:
+#             print("something is wrong with title, axie does match filter.")
+#             raise SystemExit
+#     # TODO: FIX BREED COUNT.
+#     if filterBreedCount is not None:
+#         axieBreeds = axie['breedCount']
+#         if not axieBreeds in filterBreedCount:
+#             print("something is wrong with breed count, axie does match filter.")
+#             raise SystemExit
+#     if checkPotential:
+#         axiePotential = axie['potentialPoints']
+#         for axieClass in axiePotential:
+#             if filterPotential[axieClass] is None:
+#                 continue
+#             else:
+#                 if axiePotential[axieClass] != filterPotential[axieClass][0]:
+#                     print("something is wrong with potential points, axie does match filter.")
+#                     raise SystemExit
+#     # filterParts = myFilter['parts']
+#     # TODO: FIX AXIE PURITY / PURENESS FILTER
+#     # filterPureness = myFilter['pureness']
+#     # axiePurity = 0
+#     axieSpecial = {
+#         "mystic": 0,
+#         "japan": 0,
+#         "xmas": 0,
+#         "summer": 0,
+#         "shiny": 0
+#     }
+#     genes = json.loads(GetAxieGenes512Custom.getAxieGeneImage512(axie['newGenes']))
+#     # TODO: FIX AXIE PART FILTER
+#     # checkParts = False
+#     # if filterParts is not None:
+#     #     checkParts = True
+#     #     partsChecked = True
+#     for gene in genes:
+#         if genes[gene]['d']['specialGenes'] is not None:
+#             axieSpecial[genes[gene]['d']['specialGenes']] += 1
+#         # if filterParts is not None:
+#
+#     if filterRegion is not None:
+#         if axieSpecial['japan'] < 1:
+#             print("something is wrong with region, axie does match filter.")
+#             raise SystemExit
+#
+#     # print(axieSpecial)
+#     return buyAxie(axie)
 
 
 def runLoop():
@@ -226,7 +226,8 @@ def runLoop():
                 if int(axie['order']['endedPrice']) == 0 and int(axie['order']['endedAt']) == 0:
                     priceChange = 0
                 else:
-                    priceChange = abs(int(axie['order']['basePrice']) - int(axie['order']['endedPrice'])) / int(axie['order']['duration'])
+                    priceChange = abs(int(axie['order']['basePrice']) - int(axie['order']['endedPrice'])) / int(
+                        axie['order']['duration'])
                 # this is to check if they are doing a sale from 0 -> 10000 over 1 day in attempt to fool bots.
                 # worst case, a tx takes 10 seconds from when it was pulled from marketplace to when it goes through
                 # i doubt it will ever take 10s, but would rather be safe.
@@ -238,7 +239,7 @@ def runLoop():
                 amountToSpend += int(axie['order']['currentPrice'])
                 if amountToSpend > balance:
                     break
-                txs.append(checkAxie(axie))
+                txs.append(buyAxie(axie))
                 attemptedAxies.append(axie['id'])
                 numToBuy -= 1
                 if numToBuy <= 0:
@@ -257,7 +258,8 @@ def runLoop():
             raise SystemExit
         balance = ethContract.functions.balanceOf(address).call()
         if balance <= price:
-            print("You do not have enough ETH to buy anything. Current price you have set is " + str(price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
+            print("You do not have enough ETH to buy anything. Current price you have set is " + str(
+                price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
             raise SystemExit
         time.sleep(1)
 

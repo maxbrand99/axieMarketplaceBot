@@ -55,7 +55,6 @@ def getNonce(address):
 
 
 def sendTxThreads(txs, CONNECTIONS=100, TIMEOUT=10):
-    claimTxs = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=CONNECTIONS) as executor:
         future_to_url = (executor.submit(sendTx, tx, TIMEOUT) for tx in txs)
         for future in concurrent.futures.as_completed(future_to_url):
