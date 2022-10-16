@@ -1,0 +1,344 @@
+import time
+import traceback
+import requests
+from web3 import Web3
+import json
+import AccessToken
+import txUtils
+import GetAxieGenes512Custom
+
+# DO NOT TOUCH ANYTHING IN THIS FILE OR YOU WILL BREAK IT.
+if True:
+    with open("filter.json") as f:
+        myFilter = json.load(f)
+        filterClass = myFilter['classes']
+        filterBody = myFilter['bodyShapes']
+        filterRegion = myFilter['region']
+        filterParts = myFilter['parts']
+        filterStage = myFilter['stages']
+        filterPureness = myFilter['pureness']
+        filterTitle = myFilter['title']
+        filterBreedCount = myFilter['breedCount']
+        filterPurity = myFilter['purity']
+        filterSpecial = {
+            "mystic": myFilter['numMystic'],
+            "japan": myFilter['numJapan'],
+            "xmas": myFilter['numXmas'],
+            "summer": myFilter['numSummer'],
+            "shiny": myFilter['numShiny']
+        }
+        checkSpecial = False
+        for value in filterSpecial:
+            if filterSpecial[value] is not None:
+                checkSpecial = True
+        filterPotential = {
+            "aquatic": myFilter['ppAquatic'],
+            "beast": myFilter['ppBeast'],
+            "bird": myFilter['ppBird'],
+            "bug": myFilter['ppBug'],
+            "dawn": myFilter['ppDawn'],
+            "dusk": myFilter['ppDusk'],
+            "mech": myFilter['ppMech'],
+            "plant": myFilter['ppPlant'],
+            "reptile": myFilter['ppReptile'],
+        }
+        checkPotential = False
+        for value in filterPotential:
+            if filterPotential[value] is not None:
+                checkPotential = True
+    with open("config.json") as f:
+        json_data = json.load(f)
+        key = json_data['key']
+        if not Web3.isAddress(json_data['address'].replace("ronin:", "0x")):
+            print("Invalid address entered. Please try again. Both ronin: and 0x are accepted. Exiting.")
+            raise SystemExit
+        address = Web3.toChecksumAddress(json_data['address'].replace("ronin:", "0x"))
+        accessToken = AccessToken.GenerateAccessToken(key, address)
+        if not (str(type(json_data['buyPrice']))=="<class 'float'>" or str(type(json_data['buyPrice']))=="<class 'int'>"):
+            print("Invalid buy price entered. Must be a number (either decimal or whole number). Exiting.")
+            raise SystemExit
+        price = Web3.toWei(json_data['buyPrice'], 'ether')
+        if not str(type(json_data['gasPrice']))=="<class 'int'>":
+            print("Invalid gas price entered. Must be a whole number. Exiting.")
+            raise SystemExit
+        gasPrice = json_data['gasPrice']
+        if not str(type(json_data['numAxies']))=="<class 'int'>":
+            print("Invalid num axies entered. Must be a whole number. Exiting.")
+            raise SystemExit
+        numAxies = json_data['numAxies']
+    ethContract = txUtils.eth()
+    marketplaceContract = txUtils.marketplace()
+
+
+def fetchMarket(attempts=0):
+    url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99"
+
+    payload = {
+        "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner){total,results{id,stage,class,breedCount,title,newGenes,bodyShape,battleInfo{banned}order{... on Order {id,maker,kind,assets{... on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}potentialPoints{beast,aquatic,plant,bug,bird,reptile,mech,dawn,dusk}}}}",
+        "variables": {
+            "from": 0,
+            "size": 100,
+            "sort": "PriceAsc",
+            "auctionType": "Sale",
+            "owner": None,
+            "criteria": myFilter
+        }
+    }
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken,
+        'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)',
+    }
+
+    response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+    try:
+        temp = json.loads(response.text)['data']['axies']['total']
+        return json.loads(response.text)
+    except:
+        if attempts >= 3:
+            print("fetchMarket")
+            print("something is wrong. exiting the program.")
+            print("filter:\t" + json.dumps(myFilter))
+            print("response:\t" + response.text)
+            print(traceback.format_exc())
+            raise SystemExit
+        return checkFilter()
+
+
+def buyAxie(axie):
+    order = axie['order']
+    marketTx = marketplaceContract.functions.interactWith(
+        'ORDER_EXCHANGE',
+        marketplaceContract.encodeABI(fn_name='settleOrder', args=[
+            0,
+            int(order['currentPrice']),
+            Web3.toChecksumAddress("0xa8Da6b8948D011f063aF3aA8B6bEb417f75d1194"),
+            order['signature'],
+            [
+                Web3.toChecksumAddress(order['maker']),
+                1,
+                [[
+                    1,
+                    Web3.toChecksumAddress(order['assets'][0]['address']),
+                    int(order['assets'][0]['id']),
+                    int(order['assets'][0]['quantity'])
+                ]],
+                int(order['expiredAt']),
+                Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5"),
+                int(order['startedAt']),
+                int(order['basePrice']),
+                int(order['endedAt']),
+                int(order['endedPrice']),
+                0,
+                int(order['nonce']),
+                425
+            ]
+        ])
+    ).buildTransaction({
+        'chainId': 2020,
+        'gas': 391337,
+        'gasPrice': Web3.toWei(int(gasPrice), 'gwei'),
+        'nonce': txUtils.getNonce(address)
+    })
+    signedTx = txUtils.w3.eth.account.sign_transaction(marketTx, private_key=key)
+    return signedTx
+
+
+def checkAxie(axie):
+    if filterClass is not None:
+        axieClass = axie['class']
+        if not axieClass in filterClass:
+            print("something is wrong with class, axie does match filter.")
+            raise SystemExit
+    if filterBody is not None:
+        axieBody = axie['bodyShape']
+        if not axieBody in filterBody:
+            print("something is wrong with bodyShape, axie does match filter.")
+            raise SystemExit
+    if filterStage is not None:
+        axieStage = axie['stage']
+        if not axieStage in filterStage:
+            print("something is wrong with stage, axie does match filter.")
+            raise SystemExit
+    if filterTitle is not None:
+        axieTitle = axie['title']
+        if not axieTitle in filterTitle:
+            print("something is wrong with title, axie does match filter.")
+            raise SystemExit
+    # TODO: FIX BREED COUNT.
+    if filterBreedCount is not None:
+        axieBreeds = axie['breedCount']
+        if not axieBreeds in filterBreedCount:
+            print("something is wrong with breed count, axie does match filter.")
+            raise SystemExit
+    if checkPotential:
+        axiePotential = axie['potentialPoints']
+        for axieClass in axiePotential:
+            if filterPotential[axieClass] is None:
+                continue
+            else:
+                if axiePotential[axieClass] != filterPotential[axieClass][0]:
+                    print("something is wrong with potential points, axie does match filter.")
+                    raise SystemExit
+    # filterParts = myFilter['parts']
+    # TODO: FIX AXIE PURITY / PURENESS FILTER
+    # filterPureness = myFilter['pureness']
+    # axiePurity = 0
+    axieSpecial = {
+        "mystic": 0,
+        "japan": 0,
+        "xmas": 0,
+        "summer": 0,
+        "shiny": 0
+    }
+    genes = json.loads(GetAxieGenes512Custom.getAxieGeneImage512(axie['newGenes']))
+    # TODO: FIX AXIE PART FILTER
+    # checkParts = False
+    # if filterParts is not None:
+    #     checkParts = True
+    #     partsChecked = True
+    for gene in genes:
+        if genes[gene]['d']['specialGenes'] is not None:
+            axieSpecial[genes[gene]['d']['specialGenes']] += 1
+        # if filterParts is not None:
+
+    if filterRegion is not None:
+        if axieSpecial['japan'] < 1:
+            print("something is wrong with region, axie does match filter.")
+            raise SystemExit
+
+    # print(axieSpecial)
+    return buyAxie(axie)
+
+
+def runLoop():
+    txs = []
+    attemptedAxies = []
+    numToBuy = numAxies
+    balance = ethContract.functions.balanceOf(address).call()
+    while True:
+        amountToSpend = 0
+        market = fetchMarket()
+        for axie in market['data']['axies']['results']:
+            if axie['id'] in attemptedAxies:
+                continue
+            if price >= int(axie['order']['currentPrice']):
+                if int(axie['order']['endedPrice']) == 0 and int(axie['order']['endedAt']) == 0:
+                    priceChange = 0
+                else:
+                    priceChange = abs(int(axie['order']['basePrice']) - int(axie['order']['endedPrice'])) / int(axie['order']['duration'])
+                # this is to check if they are doing a sale from 0 -> 10000 over 1 day in attempt to fool bots.
+                # worst case, a tx takes 10 seconds from when it was pulled from marketplace to when it goes through
+                # i doubt it will ever take 10s, but would rather be safe.
+                # feel free to change the 10 to something less if you want to (at your own risk)
+                if int(axie['order']['currentPrice']) + (priceChange * 10) > price:
+                    print("not buying " + str(axie['id']) + ", someone is doing something funky.")
+                    continue
+
+                amountToSpend += int(axie['order']['currentPrice'])
+                if amountToSpend > balance:
+                    break
+                txs.append(checkAxie(axie))
+                attemptedAxies.append(axie['id'])
+                numToBuy -= 1
+                if numToBuy <= 0:
+                    break
+        print("finished loop")
+        if len(txs) > 0:
+            txUtils.sendTxThreads(txs)
+            for tx in txs:
+                sentTx = Web3.toHex(Web3.keccak(tx.rawTransaction))
+                receipt = txUtils.w3.eth.get_transaction_receipt(sentTx)
+                if not receipt.status == 1:
+                    numToBuy += 1
+            txs = []
+        if numToBuy <= 0:
+            print("Bought " + numAxies + " axies. This is the limit. Exiting.")
+            raise SystemExit
+        balance = ethContract.functions.balanceOf(address).call()
+        if balance <= price:
+            print("You do not have enough ETH to buy anything. Current price you have set is " + str(price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
+            raise SystemExit
+        time.sleep(1)
+
+
+def checkFilter(attempts=0):
+    url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99"
+
+    payload = {
+        "query": "query GetAxieBriefList($auctionType:AuctionType,$criteria:AxieSearchCriteria,$from:Int,$sort:SortBy,$size:Int,$owner:String){axies(auctionType:$auctionType,criteria:$criteria,from:$from,sort:$sort,size:$size,owner:$owner){total}}",
+        "variables": {
+            "from": 0,
+            "size": 0,
+            "sort": "PriceAsc",
+            "auctionType": "All",
+            "owner": None,
+            "criteria": myFilter
+        }
+    }
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken,
+        'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)',
+    }
+
+    response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+    try:
+        return json.loads(response.text)['data']['axies']['total']
+    except:
+        if attempts >= 3:
+            print("fetchMarket")
+            print("something is wrong. exiting the program.")
+            print("filter:\t" + json.dumps(myFilter))
+            print("response:\t" + response.text)
+            print(traceback.format_exc())
+            raise SystemExit
+        return checkFilter(attempts + 1)
+
+
+def init():
+    # this check is to make sure that axies with your filter exist. This checks all axies listed or not listed.
+    num = checkFilter()
+    if num == 0:
+        print("No axies exist with your filter. Please enter a new filter and try again. Exiting.")
+        raise SystemExit
+    else:
+        print("Found " + str(num) + " axies that match your filter. Moving to next step.")
+
+    # this check is for current axies on the marketplace.
+    # if there are 1 or more axies under the price you have set, it will ask you if you want to continue.
+    market = fetchMarket()
+    cheapest = Web3.toWei(99999, "ether")
+    count = 0
+    for axie in market['data']['axies']['results']:
+        if price >= int(axie['order']['currentPrice']):
+            count += 1
+        if int(axie['order']['currentPrice']) < cheapest:
+            cheapest = int(axie['order']['currentPrice'])
+    if count > 0:
+        print("There are at least " + str(count) + " axies that are less than the price you have set in the filter.")
+        print("Current cheapest axie is " + str(cheapest / (10 ** 18)) + " ETH and your buy price is " + str(
+            price / (10 ** 18)) + " ETH.")
+        print("If you continue, it will start sweeping all axies under the set price.")
+        myInput = input("Would you like to continue? (Y/N)\n").lower()
+        if not myInput == "y":
+            print("You have chosen not to continue. Exiting.")
+        else:
+            print("Moving to next step.")
+
+    balance = ethContract.functions.balanceOf(address).call()
+    if balance < price:
+        print("You do not have enough ETH to buy anything. Current price you have set is " + str(
+            price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
+        raise SystemExit
+
+    ronBalance = txUtils.w3.eth.getBalance(address)
+    if ronBalance < (391337 * Web3.toWei(int(gasPrice), 'gwei')):
+        print("You do not have enough RON for the entered gas price. Please lower gas price or add more RON.")
+        raise SystemExit
+
+    print("Starting loop.")
+    runLoop()
+
+
+init()
