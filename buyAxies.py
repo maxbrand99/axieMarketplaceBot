@@ -147,6 +147,7 @@ def buyAxie(axie):
 def runLoop():
     txs = []
     attemptedAxies = []
+    attemptedTxs = {}
     numToBuy = numAxies
     balance = ethContract.functions.balanceOf(address).call()
     while True:
@@ -172,7 +173,10 @@ def runLoop():
                 amountToSpend += int(axie['order']['currentPrice'])
                 if amountToSpend > balance:
                     break
-                txs.append(buyAxie(axie))
+                print("Attempting to buy Axie #" + str(axie['id']))
+                tx = buyAxie(axie)
+                txs.append(tx)
+                attemptedTxs[Web3.toHex(Web3.keccak(tx.rawTransaction))] = axie['id']
                 attemptedAxies.append(axie['id'])
                 numToBuy -= 1
                 if numToBuy <= 0:
@@ -185,6 +189,9 @@ def runLoop():
                 receipt = txUtils.w3.eth.get_transaction_receipt(sentTx)
                 if not receipt.status == 1:
                     numToBuy += 1
+                    print("Buying axie " + attemptedTxs[sentTx] + " failed.")
+                else:
+                    print("Buying axie " + attemptedTxs[sentTx] + " succeded.")
             txs = []
         if numToBuy <= 0:
             print("Bought " + numAxies + " axies. This is the limit. Exiting.")
