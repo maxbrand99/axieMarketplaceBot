@@ -3,3 +3,4 @@
 filter.json
 config.json
 *.json
+__pycache__/

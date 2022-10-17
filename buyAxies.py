@@ -70,6 +70,28 @@ if True:
     marketplaceContract = txUtils.marketplace()
 
 
+# THIS IS FOR APPROVING ETH TO BE SPENT BY THE MARKETPLACE.
+# WHEN YOU MAKE A NEW ACCOUNT ON MARKETPLACE, IT DOES THE SAME THING.
+# The address being approved is 0xfff9ce5f71ca6178d3beecedb61e7eff1602950e which is Contract: Marketplace Gateway V2
+# https://explorer.roninchain.com/address/ronin:fff9ce5f71ca6178d3beecedb61e7eff1602950e
+# The amount approved is 115792089237316195423570985008687907853269984665640564039457584007913129639935
+# This is the same amount that the ronin wallet approves.
+def approve():
+    send_txn = ethContract.functions.approve(
+        Web3.toChecksumAddress('0xfff9ce5f71ca6178d3beecedb61e7eff1602950e'),
+        115792089237316195423570985008687907853269984665640564039457584007913129639935
+    ).buildTransaction({
+        'chainId': 2020,
+        'gas': 391337,
+        'gasPrice': Web3.toWei(1, 'gwei'),
+        'nonce': txUtils.getNonce(address)
+    })
+    signed_txn = txUtils.w3.eth.account.sign_transaction(send_txn, private_key=key)
+    sentTx = Web3.toHex(Web3.keccak(signed_txn.rawTransaction))
+    txUtils.sendTx(signed_txn)
+    return sentTx
+
+
 def fetchMarket(attempts=0):
     url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99"
 
@@ -93,7 +115,8 @@ def fetchMarket(attempts=0):
     response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
     try:
         temp = json.loads(response.text)['data']['axies']['total']
-        return json.loads(response.text)
+        if temp:
+            return json.loads(response.text)
     except:
         if attempts >= 3:
             print("fetchMarket")
@@ -278,6 +301,17 @@ def init():
     if ronBalance < (391337 * Web3.toWei(int(gasPrice), 'gwei')):
         print("You do not have enough RON for the entered gas price. Please lower gas price or add more RON.")
         raise SystemExit
+
+
+    allowance = ethContract.functions.allowance(address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E").call()
+    if allowance == 0:
+        print("We need to approve eth for spending on the marketplace. Approving...")
+        sentTx = approve()
+        allowance = ethContract.functions.allowance(address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E").call()
+        if allowance == 0:
+            print("Something went wrong, approval didnt work. Exiting.")
+        else:
+            print("Approved at tx: " + str(sentTx))
 
     print("Starting loop.")
     runLoop()
