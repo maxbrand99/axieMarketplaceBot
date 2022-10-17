@@ -1,3 +1,5 @@
+# Author: Maxbrand99
+
 import json
 import requests
 from eth_account.messages import encode_defunct
@@ -39,7 +41,7 @@ def GenerateAccessToken(key, address, attempts=0):
                 print(e)
                 return None
             else:
-                return getRandomMessage(attempts2+1)
+                return getRandomMessage(attempts2 + 1)
 
     def signRoninMessage(message, key, attempts2=0):
         try:
@@ -54,8 +56,7 @@ def GenerateAccessToken(key, address, attempts=0):
                 print(e)
                 return None
             else:
-                return signRoninMessage(message, key, attempts2+1)
-
+                return signRoninMessage(message, key, attempts2 + 1)
 
     def CreateAccessToken(message, signature, address, attempts2=0):
         try:
@@ -74,7 +75,7 @@ def GenerateAccessToken(key, address, attempts=0):
                 print(e)
                 return None
             else:
-                return CreateAccessToken(message, signature, address, attempts2+1)
+                return CreateAccessToken(message, signature, address, attempts2 + 1)
 
     try:
         myResponse = getRandomMessage()
@@ -83,9 +84,8 @@ def GenerateAccessToken(key, address, attempts=0):
         return token
     except Exception as e:
         if attempts > 3:
-            # TODO add a website guide for common errors
             print(e)
             print("Unable To generate Access Token. This is gernerally an internet issue or a server issue.")
             return None
         else:
-            return GenerateAccessToken(key, address, attempts+1)
+            return GenerateAccessToken(key, address, attempts + 1)

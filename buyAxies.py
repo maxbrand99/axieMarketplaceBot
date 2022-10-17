@@ -1,3 +1,4 @@
+# Author: Maxbrand99
 import json
 import time
 import traceback
@@ -171,6 +172,7 @@ def runLoop():
     txs = []
     attemptedAxies = []
     attemptedTxs = {}
+    count = 0
     numToBuy = numAxies
     balance = ethContract.functions.balanceOf(address).call()
     while True:
@@ -204,7 +206,6 @@ def runLoop():
                 numToBuy -= 1
                 if numToBuy <= 0:
                     break
-        print("finished loop")
         if len(txs) > 0:
             txUtils.sendTxThreads(txs)
             for tx in txs:
@@ -224,6 +225,9 @@ def runLoop():
             print("You do not have enough ETH to buy anything. Current price you have set is " + str(
                 price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
             raise SystemExit
+        count += 1
+        if count % 100 == 0:
+            print("Still waiting. Printing this so you know I am still alive.")
         time.sleep(1)
 
 

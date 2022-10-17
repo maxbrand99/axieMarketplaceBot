@@ -1,6 +1,7 @@
+# Author: Maxbrand99
+
 import concurrent.futures
 import json
-
 from web3 import Web3, exceptions
 
 with open("abis.json") as file:
