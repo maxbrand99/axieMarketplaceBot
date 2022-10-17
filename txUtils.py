@@ -1,9 +1,12 @@
-import json
-from web3 import Web3, exceptions
 import concurrent.futures
+import json
+
+from web3 import Web3, exceptions
 
 with open("abis.json") as file:
     w3 = Web3(Web3.HTTPProvider('https://api.roninchain.com/rpc', request_kwargs={"headers":{"content-type":"application/json","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}}))
+    # IF YOU HAVE YOUR OWN RPC URL, COMMENT OUT THE LINE ABOVE, UNCOMMENT THE LINE BELOW, AND ENTER IT ON THE LINE BELOW
+    # w3 = Web3(Web3.HTTPProvider('http://mycustomrpc.com/rpc'))
     abis = json.load(file)
     nonces = {}
 
@@ -36,7 +39,7 @@ def sendTx(signedTxn, timeout=10):
             if receipt["status"] == 1:
                 success = True
             break
-        except (exceptions.TransactionNotFound, exceptions.TimeExhausted, ValueError) as e:
+        except (exceptions.TransactionNotFound, exceptions.TimeExhausted, ValueError):
             tries += 1
             print("Not found yet, waiting...")
     if success:
