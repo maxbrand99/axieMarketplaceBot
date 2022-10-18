@@ -296,6 +296,7 @@ def init():
         myInput = input("Would you like to continue? (Y/N)\n").lower()
         if not myInput == "y":
             print("You have chosen not to continue. Exiting.")
+            raise SystemExit
         else:
             print("Moving to next step.")
 
