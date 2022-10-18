@@ -49,6 +49,10 @@ if True:
     with open("config.json") as f:
         json_data = json.load(f)
         key = json_data['key']
+        if key == "0xYOUR_PRIVATE_KEY":
+            key = input("Please enter your private key")
+        if json_data['address'] == "ronin:YOUR_RONIN_ADDRESS":
+            json_data['address'] = input("Please enter your ronin address")
         if not Web3.isAddress(json_data['address'].replace("ronin:", "0x")):
             print("Invalid address entered. Please try again. Both ronin: and 0x are accepted. Exiting.")
             raise SystemExit
