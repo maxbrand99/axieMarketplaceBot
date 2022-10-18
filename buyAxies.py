@@ -222,7 +222,7 @@ def runLoop():
                     print("Buying axie " + attemptedTxs[sentTx] + " succeded.")
             txs = []
         if numToBuy <= 0:
-            print("Bought " + numAxies + " axies. This is the limit. Exiting.")
+            print("Bought " + str(numAxies) + " axies. This is the limit. Exiting.")
             raise SystemExit
         balance = ethContract.functions.balanceOf(address).call()
         if balance <= price:
