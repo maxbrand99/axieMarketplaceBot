@@ -217,17 +217,16 @@ def runLoop():
                 receipt = txUtils.w3.eth.get_transaction_receipt(sentTx)
                 if not receipt.status == 1:
                     numToBuy += 1
-                    print("Buying axie " + attemptedTxs[sentTx] + " failed.")
+                    print("Buying axie " + str(attemptedTxs[sentTx]) + " failed.")
                 else:
-                    print("Buying axie " + attemptedTxs[sentTx] + " succeded.")
+                    print("Buying axie " + str(attemptedTxs[sentTx]) + " succeded.")
             txs = []
         if numToBuy <= 0:
             print("Bought " + str(numAxies) + " axies. This is the limit. Exiting.")
             raise SystemExit
         balance = ethContract.functions.balanceOf(address).call()
         if balance <= price:
-            print("You do not have enough ETH to buy anything. Current price you have set is " + str(
-                price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
+            print("You do not have enough ETH to buy anything. Current price you have set is " + str(price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
             raise SystemExit
         count += 1
         if count % 100 == 0:
@@ -263,7 +262,7 @@ def checkFilter(attempts=0):
             print("fetchMarket")
             print("something is wrong. exiting the program.")
             print("filter:\t" + json.dumps(myFilter))
-            print("response:\t" + response.text)
+            print("response:\t" + str(response.text))
             print(traceback.format_exc())
             raise SystemExit
         return checkFilter(attempts + 1)
@@ -290,8 +289,7 @@ def init():
             cheapest = int(axie['order']['currentPrice'])
     if count > 0:
         print("There are at least " + str(count) + " axies that are less than the price you have set in the filter.")
-        print("Current cheapest axie is " + str(cheapest / (10 ** 18)) + " ETH and your buy price is " + str(
-            price / (10 ** 18)) + " ETH.")
+        print("Current cheapest axie is " + str(cheapest / (10 ** 18)) + " ETH and your buy price is " + str(price / (10 ** 18)) + " ETH.")
         print("If you continue, it will start sweeping all axies under the set price.")
         myInput = input("Would you like to continue? (Y/N)\n").lower()
         if not myInput == "y":
@@ -302,8 +300,7 @@ def init():
 
     balance = ethContract.functions.balanceOf(address).call()
     if balance < price:
-        print("You do not have enough ETH to buy anything. Current price you have set is " + str(
-            price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
+        print("You do not have enough ETH to buy anything. Current price you have set is " + str(price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
         raise SystemExit
 
     ronBalance = txUtils.w3.eth.getBalance(address)
