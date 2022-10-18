@@ -319,6 +319,7 @@ def init():
         allowance = ethContract.functions.allowance(address, "0xffF9Ce5f71ca6178D3BEEcEDB61e7Eff1602950E").call()
         if allowance == 0:
             print("Something went wrong, approval didnt work. Exiting.")
+            raise SystemExit
         else:
             print("Approved at tx: " + str(sentTx))
 
