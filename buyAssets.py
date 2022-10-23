@@ -179,11 +179,7 @@ def checkAxie(axie):
             # i doubt it will ever take 10s, but would rather be safe.
             # feel free to change the 10 to something less if you want to (at your own risk)
             if int(axie['order']['currentPrice']) + (priceChange * 10) > myPrice:
-                print("not buying " + str(axie['id']) + ", someone is doing something funky.")
-                print(axie['order']['currentPrice'])
-                print(priceChange)
-                print(int(axie['order']['currentPrice']) + (priceChange * 10))
-                print(myPrice)
+                print(f"not buying {axie['id']}, someone is doing something funky.")
                 continue
         else:
             continue
@@ -322,11 +318,7 @@ def checkLand(land):
             # i doubt it will ever take 10s, but would rather be safe.
             # feel free to change the 10 to something less if you want to (at your own risk)
             if int(land['order']['currentPrice']) + (priceChange * 10) > myPrice:
-                print("not buying " + str(land['id']) + ", someone is doing something funky.")
-                print(land['order']['currentPrice'])
-                print(priceChange)
-                print(int(land['order']['currentPrice']) + (priceChange * 10))
-                print(myPrice)
+                print(f"not buying {land['tokenId']}, someone is doing something funky.")
                 continue
         else:
             continue
@@ -361,11 +353,7 @@ def checkItem(item):
             # i doubt it will ever take 10s, but would rather be safe.
             # feel free to change the 10 to something less if you want to (at your own risk)
             if int(item['order']['currentPrice']) + (priceChange * 10) > myPrice:
-                print("not buying " + str(item['id']) + ", someone is doing something funky.")
-                print(item['order']['currentPrice'])
-                print(priceChange)
-                print(int(item['order']['currentPrice']) + (priceChange * 10))
-                print(myPrice)
+                print(f"not buying {item['tokenId']}, someone is doing something funky.")
                 continue
         else:
             continue
@@ -449,11 +437,11 @@ def runLoop():
                     tx = buyAsset(asset)
                     txs.append(tx)
                     if 'id' in asset:
-                        print("Attempting to buy Asset #" + str(asset['id']) + " with filter " + str(filterName) + ".")
+                        print(f"Attempting to buy Asset #{asset['id']} with filter {filterName}.")
                         attemptedTxs[Web3.toHex(Web3.keccak(tx.rawTransaction))] = {'asset': asset['id'], 'name': filterName}
                         attemptedAssets.append(asset['id'])
                     else:
-                        print("Attempting to buy Asset #" + str(asset['tokenId']) + " with filter " + str(filterName) + ".")
+                        print(f"Attempting to buy Asset #{asset['tokenId']} with filter {filterName}.")
                         attemptedTxs[Web3.toHex(Web3.keccak(tx.rawTransaction))] = {'asset': asset['tokenId'], 'name': filterName}
                         attemptedAssets.append(asset['tokenId'])
         if len(txs) > 0:
@@ -464,10 +452,10 @@ def runLoop():
                 if not receipt.status == 1:
                     purchasedAssets -= 1
                     filters[attemptedTxs[sentTx]['name']]['num'] += 1
-                    print("Buying asset " + str(attemptedTxs[sentTx]['asset']) + " failed with filter " + attemptedTxs[sentTx]['name'] +".")
+                    print(f"Buying asset {attemptedTxs[sentTx]['asset']} failed with filter {attemptedTxs[sentTx]['name']}.")
                 else:
                     purchasedAssets += 1
-                    print("Buying asset " + str(attemptedTxs[sentTx]['asset']) + " succeded with filter " + attemptedTxs[sentTx]['name'] +".")
+                    print(f"Buying asset {attemptedTxs[sentTx]['asset']} succeded with filter {attemptedTxs[sentTx]['name']}.")
             txs = []
             with open("filters.json", "w") as f:
                 f.write(json.dumps(filters))
@@ -484,10 +472,10 @@ def runLoop():
                 if myPrice < cheapestFilter:
                     cheapestFilter = myPrice
             if not buyMore:
-                print("Bought " + str(purchasedAssets) + " assets. No filters have any assets left. Exiting.")
+                print(f"Bought {purchasedAssets} assets. No filters have any assets left. Exiting.")
                 raise SystemExit
             if not affordMore:
-                print("You do not have enough ETH to buy anything. Current cheapest filter price you have set is " + str(cheapestFilter / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
+                print(f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapestFilter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
                 raise SystemExit
         count += 1
         if count % 120 == 0:
@@ -513,7 +501,7 @@ def init():
             print("Something went wrong, approval didnt work. Exiting.")
             raise SystemExit
         else:
-            print("Approved at tx: " + str(sentTx))
+            print(f"Approved at tx: {sentTx}")
 
     cheapestFilter = Web3.toWei(99999, "ether")
     affordMore = False
@@ -525,10 +513,7 @@ def init():
         if myPrice < cheapestFilter:
             cheapestFilter = myPrice
     if not affordMore:
-        print(
-            "You do not have enough ETH to buy anything. Current cheapest filter price you have set is " + str(
-                cheapestFilter / (10 ** 18)) + " ETH and you only have " + str(
-                balance / (10 ** 18)) + " ETH. Exiting.")
+        print(f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapestFilter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
         raise SystemExit
 
     if filters == {}:
@@ -560,8 +545,8 @@ def init():
             if int(asset['order']['currentPrice']) < cheapest:
                 cheapest = int(asset['order']['currentPrice'])
         if count > 0:
-            print("There are at least " + str(count) + " assets that are less than the price you have set in the filter.")
-            print("Current cheapest asset is " + str(cheapest / (10 ** 18)) + " ETH and your buy price is " + str(price / (10 ** 18)) + " ETH.")
+            print(f"There are at least {count} assets that are less than the price you have set in the filter.")
+            print(f"Current cheapest asset is {cheapest / (10 ** 18)} ETH and your buy price is {price / (10 ** 18)} ETH.")
             myInput = input("Would you like to remove this filter? Saying no, will send you back to main menu where you can edit it. (Y/N)\n").lower()
             if not myInput == "y":
                 print("You have chosen not to continue. Choose option 2 from the main menu to edit your filter.")
@@ -608,7 +593,6 @@ def createFilter(filterName="", purchasePrice=0, newFilter=None, numAssets=0, as
             newAssetType = url[:url.find("?")].replace("https://app.axieinfinity.com/marketplace/", "").replace("/", "")
             print("Cannot change filter type. Previous type was " + assetType + " new filter type is " + newAssetType + ".")
             return createFilter(filterName=filterName, purchasePrice=purchasePrice, numAssets=numAssets, skipCreate=skipCreate)
-        print(assetType)
         try:
             inputData = url[url.find("?") + 1:].split("&")
             for value in inputData:
@@ -648,7 +632,7 @@ def createFilter(filterName="", purchasePrice=0, newFilter=None, numAssets=0, as
             print("Something went wrong with the filter. Did you enter the URL correctly?")
             print("Ex: https://app.axieinfinity.com/marketplace/axies/?class=Beast&mystic=1&auctionTypes=Sale")
             print("Would search for a 1 part mystic beast")
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
             return createFilter(filterName=filterName, purchasePrice=purchasePrice, numAssets=numAssets, skipCreate=skipCreate)
 
     if not skipCreate:
@@ -666,7 +650,7 @@ def createFilter(filterName="", purchasePrice=0, newFilter=None, numAssets=0, as
             if not choice.lower() == "y":
                 return createFilter()
         else:
-            print("Found " + str(num) + " assets that match your filter. Moving to next step.")
+            print(f"Found {num} assets that match your filter. Moving to next step.")
 
     filters[filterName] = {
         "price": purchasePrice,
@@ -690,7 +674,7 @@ def editFilter(filterName="", attempts=0):
         filterNames = list(filters.keys())
         for filterName in filterNames:
             count += 1
-            print(str(count) + ". " + filterName)
+            print(f"{count}. {filterName}")
         choice = input("Enter the number of the filter you would like to edit, or leave blank to go back to main menu.\n")
         if choice == "":
             return mainMenu()
@@ -702,7 +686,6 @@ def editFilter(filterName="", attempts=0):
         except:
             print("The filter you entered does not exist, please try again.")
             return editFilter()
-        print(filterNames)
         filterName = filterNames[int(choice)-1]
 
     print("1. Filter name")
@@ -715,8 +698,8 @@ def editFilter(filterName="", attempts=0):
             print("Invalid entry, please try again.")
             return editFilter(filterName, attempts + 1)
         else:
-            print("Failed input 3 times. Exiting.")
-            raise SystemExit
+            print("Failed input 3 times. Returning to Main Menu.")
+            return mainMenu()
     filterPrice = filters[filterName]['price']
     filterData = filters[filterName]['filter']
     filterNum = filters[filterName]['num']
@@ -733,14 +716,53 @@ def editFilter(filterName="", attempts=0):
     return mainMenu()
 
 
+def deleteFilter(filterName="", attempts=0):
+    if filterName == "":
+        count = 0
+        filterNames = list(filters.keys())
+        for filterName in filterNames:
+            count += 1
+            print(f"{count}. {filterName}")
+        choice = input("Enter the number of the filter you would like to delete, or leave blank to go back to main menu.\n")
+        if choice == "":
+            return mainMenu()
+        try:
+            choice = int(choice)
+            if not (0 < choice <= count):
+                print("The filter you entered does not exist, please try again.")
+                return deleteFilter()
+        except:
+            print("The filter you entered does not exist, please try again.")
+            return deleteFilter()
+        filterName = filterNames[int(choice) - 1]
+    filterInput = input(f"Please enter the filter name \"{filterName}\" to confirm deleting this filter (case matters for this one), or leave blank to go back to main menu.\n")
+    if filterInput == "":
+        return mainMenu()
+    if filterInput == filterName:
+        del filters[filterName]
+        with open("./filters.json", "w") as f:
+            f.write(json.dumps(filters))
+        print(f"Deleted filter {filterName}")
+    else:
+        if attempts < 2:
+            print("Invalid entry, please try again.")
+            return deleteFilter(filterName, attempts + 1)
+        else:
+            print("Failed input 3 times. Returning to Main Menu.")
+            return mainMenu()
+
+    return mainMenu()
+
+
 def mainMenu(attempts=0):
     print("Main Menu")
     print("1. Create new filter")
     print("2. Edit existing filter")
-    print("3. Run the script")
-    print("4. Exit")
+    print("3. Delete existing filter")
+    print("4. Run the script")
+    print("5. Exit")
     choice = input("What would you like to do?\n")
-    if not choice in ["1", "2", "3", "4"]:
+    if not choice in ["1", "2", "3", "4", "5"]:
         if attempts < 2:
             print("Invalid entry, please try again.")
             return mainMenu(attempts + 1)
@@ -752,8 +774,10 @@ def mainMenu(attempts=0):
     elif choice == "2":
         return editFilter()
     elif choice == "3":
-        return init()
+        return deleteFilter()
     elif choice == "4":
+        return init()
+    elif choice == "5":
         raise SystemExit
     else:
         return mainMenu(attempts + 1)
