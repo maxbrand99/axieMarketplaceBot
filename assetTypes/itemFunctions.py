@@ -7,10 +7,10 @@ def fetchMarket(accessToken, myFilter, attempts=0):
     url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99"
 
     payload = {
-        "query": "query GetItemBriefList($from:Int,$size:Int,$sort:SortBy,$auctionType:AuctionType,$owner:String,$criteria:ItemSearchCriteria){items(from:$from,size:$size,sort:$sort,auctionType:$auctionType,owner:$owner,criteria:$criteria){total,results{order{...on%20Order{id,maker,kind,assets{...on%20Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
+        "query": "query GetItemBriefList($from:Int,$size:Int,$sort:SortBy,$auctionType:AuctionType,$owner:String,$criteria:ItemSearchCriteria){items(from:$from,size:$size,sort:$sort,auctionType:$auctionType,owner:$owner,criteria:$criteria){total,results{order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
         "variables": {
             "from": 0,
-            "size": 25,
+            "size": 100,
             "sort": "PriceAsc",
             "auctionType": "Sale",
             "owner": None,
@@ -23,6 +23,7 @@ def fetchMarket(accessToken, myFilter, attempts=0):
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)',
     }
     try:
+        print(json.dumps(payload))
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
     except:
         if attempts >= 3:
