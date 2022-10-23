@@ -23,7 +23,6 @@ def fetchMarket(accessToken, myFilter, attempts=0):
         'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)',
     }
     try:
-        print(json.dumps(payload))
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
     except:
         if attempts >= 3:
