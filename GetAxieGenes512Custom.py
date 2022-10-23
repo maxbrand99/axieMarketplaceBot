@@ -25,11 +25,12 @@ def getAxieGeneImage512(axie_genes):
                     "r1": binarytraits[r1Class][part][r1Bin]["0000"],
                     "r2": binarytraits[r2Class][part][r2Bin]["0000"]
                 }
-            print(part)
-            print(group)
             print(dClass)
+            print(part)
             print(dBin)
             print(group[21:25])
+            print(binarytraits[dClass][part][dBin])
+            print(group)
             raise "success = false"
 
     binarytraits = {

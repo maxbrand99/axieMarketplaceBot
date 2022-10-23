@@ -1,7 +1,5 @@
 {
   "key": "0xYOUR_PRIVATE_KEY",
   "address": "ronin:YOUR_RONIN_ADDRESS",
-  "gasPrice": 0,
-  "buyPrice": 0,
-  "numAxies": 0
+  "gasPrice": 0
 }

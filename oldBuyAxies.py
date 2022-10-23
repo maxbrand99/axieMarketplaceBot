@@ -11,41 +11,6 @@ import txUtils
 if True:
     with open("filter.json") as f:
         myFilter = json.load(f)
-        filterClass = myFilter['classes']
-        filterBody = myFilter['bodyShapes']
-        filterRegion = myFilter['region']
-        filterParts = myFilter['parts']
-        filterStage = myFilter['stages']
-        filterPureness = myFilter['pureness']
-        filterTitle = myFilter['title']
-        filterBreedCount = myFilter['breedCount']
-        filterPurity = myFilter['purity']
-        filterSpecial = {
-            "mystic": myFilter['numMystic'],
-            "japan": myFilter['numJapan'],
-            "xmas": myFilter['numXmas'],
-            "summer": myFilter['numSummer'],
-            "shiny": myFilter['numShiny']
-        }
-        checkSpecial = False
-        for value in filterSpecial:
-            if filterSpecial[value] is not None:
-                checkSpecial = True
-        filterPotential = {
-            "aquatic": myFilter['ppAquatic'],
-            "beast": myFilter['ppBeast'],
-            "bird": myFilter['ppBird'],
-            "bug": myFilter['ppBug'],
-            "dawn": myFilter['ppDawn'],
-            "dusk": myFilter['ppDusk'],
-            "mech": myFilter['ppMech'],
-            "plant": myFilter['ppPlant'],
-            "reptile": myFilter['ppReptile'],
-        }
-        checkPotential = False
-        for value in filterPotential:
-            if filterPotential[value] is not None:
-                checkPotential = True
     with open("config.json") as f:
         json_data = json.load(f)
         key = json_data['key']
@@ -130,7 +95,7 @@ def fetchMarket(attempts=0):
             print("response:\t" + response.text)
             print(traceback.format_exc())
             raise SystemExit
-        return checkFilter()
+        return checkFilter(attempts+1)
 
 
 def buyAxie(axie):
