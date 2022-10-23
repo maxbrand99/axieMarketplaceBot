@@ -520,6 +520,7 @@ def init():
         print("You must create at least 1 filter.")
         return mainMenu()
     filterNames = list(filters.keys())
+    print("Checking markets. This might take a few minutes, please be patient.")
     for filterName in filterNames:
         # this check is for current assets on the marketplace.
         # if there are 1 or more assets under the price you have set, it will ask you if you want to continue.
@@ -592,7 +593,7 @@ def createFilter(filterName="", purchasePrice=0, newFilter=None, numAssets=0, as
         elif not assetType == url[:url.find("?")].replace("https://app.axieinfinity.com/marketplace/", "").replace("/", ""):
             newAssetType = url[:url.find("?")].replace("https://app.axieinfinity.com/marketplace/", "").replace("/", "")
             print("Cannot change filter type. Previous type was " + assetType + " new filter type is " + newAssetType + ".")
-            return createFilter(filterName=filterName, purchasePrice=purchasePrice, numAssets=numAssets, skipCreate=skipCreate)
+            return createFilter(filterName=filterName, purchasePrice=purchasePrice, numAssets=numAssets, assetType=assetType, skipCreate=skipCreate)
         try:
             inputData = url[url.find("?") + 1:].split("&")
             for value in inputData:
