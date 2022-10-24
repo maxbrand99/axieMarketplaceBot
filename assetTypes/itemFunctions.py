@@ -7,7 +7,7 @@ def fetchMarket(accessToken, myFilter, attempts=0):
     url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99"
 
     payload = {
-        "query": "query GetItemBriefList($from:Int,$size:Int,$sort:SortBy,$auctionType:AuctionType,$owner:String,$criteria:ItemSearchCriteria){items(from:$from,size:$size,sort:$sort,auctionType:$auctionType,owner:$owner,criteria:$criteria){total,results{order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
+        "query": "query GetItemBriefList($from:Int,$size:Int,$sort:SortBy,$auctionType:AuctionType,$owner:String,$criteria:ItemSearchCriteria){items(from:$from,size:$size,sort:$sort,auctionType:$auctionType,owner:$owner,criteria:$criteria){total,results{tokenId,order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
         "variables": {
             "from": 0,
             "size": 100,

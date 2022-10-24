@@ -7,7 +7,7 @@ def fetchMarket(accessToken, myFilter, attempts=0):
     url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99"
 
     payload = {
-        "query": "query GetLandsGrid($from:Int!,$size:Int!,$sort:SortBy!,$owner:String,$criteria:LandSearchCriteria,$auctionType:AuctionType){lands(criteria:$criteria,from:$from,size:$size,sort:$sort,owner:$owner,auctionType:$auctionType){total,results{order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
+        "query": "query GetLandsGrid($from:Int!,$size:Int!,$sort:SortBy!,$owner:String,$criteria:LandSearchCriteria,$auctionType:AuctionType){lands(criteria:$criteria,from:$from,size:$size,sort:$sort,owner:$owner,auctionType:$auctionType){total,results{tokenId,order{...on Order{id,maker,kind,assets{...on Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}}",
         "variables": {
             "from": 0,
             "size": 100,
