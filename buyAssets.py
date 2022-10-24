@@ -27,8 +27,13 @@ if True:
             print("Invalid gas price entered. Must be a whole number. Exiting.")
             raise SystemExit
         gasPrice = json_data['gasPrice']
-    with open("filters.json") as f:
-        filters = json.load(f)
+    try:
+        with open("filters.json") as f:
+            filters = json.load(f)
+    except:
+        with open("filters.json", "w") as f:
+            filters = {}
+            f.write(json.dumps(filters))
     ethContract = txUtils.eth()
     marketplaceContract = txUtils.marketplace()
 
