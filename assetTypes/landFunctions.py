@@ -26,7 +26,7 @@ def fetchMarket(accessToken, myFilter, attempts=0):
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
     except:
         if attempts >= 3:
-            print("fetchMarket request")
+            print("fetchLandMarket request")
             print("something is wrong. exiting the program.")
             print(traceback.format_exc())
             raise SystemExit
@@ -37,7 +37,7 @@ def fetchMarket(accessToken, myFilter, attempts=0):
             return json.loads(response.text)
     except:
         if attempts >= 3:
-            print("fetchMarket")
+            print("fetchLandMarket")
             print("something is wrong. exiting the program.")
             print("filter:\t" + json.dumps(myFilter))
             print("response:\t" + response.text)
@@ -69,7 +69,7 @@ def checkFilter(accessToken, myFilter, attempts=0):
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
     except:
         if attempts >= 3:
-            print("checkFilter request")
+            print("checkLandFilter request")
             print("something is wrong. exiting the program.")
             print(traceback.format_exc())
             raise SystemExit
@@ -78,7 +78,7 @@ def checkFilter(accessToken, myFilter, attempts=0):
         return json.loads(response.text)['data']['lands']['total']
     except:
         if attempts >= 3:
-            print("fetchLandMarket")
+            print("checkLandFilter")
             print("something is wrong. exiting the program.")
             print("filter:\t" + json.dumps(myFilter))
             print("response:\t" + response.text)

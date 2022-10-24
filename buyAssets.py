@@ -32,8 +32,9 @@ if True:
             filters = json.load(f)
     except:
         with open("filters.json", "w") as f:
-            filters = {}
-            f.write(json.dumps(filters))
+            f.write(json.dumps({}))
+        with open("filters.json") as f:
+            filters = json.load(f)
     ethContract = txUtils.eth()
     marketplaceContract = txUtils.marketplace()
 
@@ -611,7 +612,7 @@ def createFilter(filterName="", purchasePrice=0, newFilter=None, numAssets=0, as
                 if filterType == "region":
                     newFilter["region"] = "japan"
                     continue
-                if filterType in ["auctionTypes", "stage", "page"]:
+                if filterType in ["auctionTypes", "stage", "page", "partTypes"]:
                     continue
                 if filterType == "excludeParts":
                     filterType = "parts"
