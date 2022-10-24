@@ -218,7 +218,7 @@ def createFilter(purchasePrice=0, newFilter=None, numAssets=0, assetType=""):
                 if filterType == "region":
                     newFilter["region"] = "japan"
                     continue
-                if filterType in ["auctionTypes", "stage", "page"]:
+                if filterType in ["auctionTypes", "stage", "page", "partTypes"]:
                     continue
                 if filterType == "excludeParts":
                     filterType = "parts"
