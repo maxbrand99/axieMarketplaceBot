@@ -33,7 +33,7 @@ def fetchMarket(accessToken, myFilter, attempts=0):
         return fetchMarket(accessToken, myFilter, attempts + 1)
     try:
         temp = json.loads(response.text)['data']['axies']['total']
-        if temp:
+        if temp >= 0:
             return json.loads(response.text)
     except:
         if attempts >= 3:

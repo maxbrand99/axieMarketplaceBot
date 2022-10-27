@@ -552,7 +552,7 @@ def init():
             if int(asset['order']['currentPrice']) < cheapest:
                 cheapest = int(asset['order']['currentPrice'])
         if count > 0:
-            print(f"There are at least {count} assets that are less than the price you have set in the filter.")
+            print(f"There are at least {count} assets that are less than the price you have set in the filter {filterName}.")
             print(f"Current cheapest asset is {cheapest / (10 ** 18)} ETH and your buy price is {price / (10 ** 18)} ETH.")
             myInput = input("Would you like to remove this filter? Saying no, will send you back to main menu where you can edit it. (Y/N)\n").lower()
             if not myInput == "y":
@@ -563,6 +563,7 @@ def init():
                 del filters[filterName]
                 with open("filters.json", "w") as f:
                     f.write(json.dumps(filters))
+                print("Checking the remaining filters.")
         time.sleep(1)
 
     print("Starting loop.")
