@@ -171,6 +171,10 @@ def buyAsset(asset):
 
 
 def checkAxie(axie):
+    if axie is None:
+        return False
+    if axie['order'] is None:
+        return False
     for filterName in filters:
         if not filters[filterName]["type"] == "axies":
             continue
@@ -310,6 +314,10 @@ def checkAxie(axie):
 
 
 def checkLand(land):
+    if land is None:
+        return False
+    if land['order'] is None:
+        return False
     for filterName in filters:
         if not filters[filterName]["type"] == "lands":
             continue
@@ -345,6 +353,10 @@ def checkLand(land):
 
 
 def checkItem(item):
+    if item is None:
+        return False
+    if item['order'] is None:
+        return False
     for filterName in filters:
         if not filters[filterName]["type"] == "items":
             continue
