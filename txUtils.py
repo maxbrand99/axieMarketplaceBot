@@ -49,12 +49,16 @@ def sendTx(signedTxn, timeout=10):
 
 
 def getNonce(address):
-    try:
-        nonce = nonces[address]
-        nonces[address] = nonce + 1
-    except:
-        nonce = w3.eth.get_transaction_count(Web3.toChecksumAddress(address))
-        nonces[address] = nonce + 1
+    address = Web3.toChecksumAddress(address)
+    nonce = w3.eth.get_transaction_count(address)
+    if address in nonces:
+        if nonces[address] < nonce:
+            nonces[address] = nonce
+        else:
+            nonce = nonces[address]
+    else:
+        nonces[address] = nonce
+    nonces[address] += 1
     return nonce
 
 
