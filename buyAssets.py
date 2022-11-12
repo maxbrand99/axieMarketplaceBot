@@ -241,7 +241,7 @@ def checkAxie(axie):
                         if not temp[0] in parts:
                             parts[temp[0]] = []
                         parts[temp[0]].append(part)
-            elif value in ["pureness", "purity", "region"]:
+            elif value in ["pureness", "purity"]:
                 parseGenes = True
 
         if not filterPotential == {}:
@@ -295,16 +295,13 @@ def checkAxie(axie):
             if 'purity' in myFilter:
                 if not purity >= int(myFilter['purity'][0]):
                     continue
-            if 'region' in myFilter:
-                if axieSpecial['japan'] < 1:
-                    continue
             if 'parts' in myFilter:
                 if not hasParts:
                     continue
             if not filterSpecial == {}:
                 specialMatch = True
                 for special in filterSpecial:
-                    if not axieSpecial[special] >= filterSpecial[special]:
+                    if not axieSpecial[special] in filterSpecial[special]:
                         specialMatch = False
                         break
                 if not specialMatch:
@@ -410,8 +407,8 @@ def runLoop():
         assetType = filters[filterName]['type']
         if not assetType in assetTypes:
             assetTypes.append(assetType)
+    startTime = time.time()
     while True:
-        startTime = time.time()
         amountToSpend = 0
         market = fetchRecent(assetTypes)
         for assetType in assetTypes:
@@ -497,14 +494,20 @@ def runLoop():
                 raise SystemExit
         count += 1
         if count % 120 == 0:
-            print("Still waiting. Printing this so you know I am still alive.")
+            # print("Still waiting. Printing this so you know I am still alive.")
+            endTime = time.time()
+            print(f"Finished 120 Loops. Total time: {endTime - startTime}. Time per loop: {(endTime - startTime)/120}")
+            startTime = time.time()
         if len(checkedAssets) >= 10000:
             checkedAssets = []
-        print("Finished Loop. Loop time: " + str(time.time() - startTime))
+
         time.sleep(1)
 
 
 def init():
+    if filters == {}:
+        print("You must create at least 1 filter.")
+        return mainMenu()
     ronBalance = txUtils.w3.eth.getBalance(address)
     if ronBalance < (481337 * Web3.toWei(int(gasPrice), 'gwei')):
         print("You do not have enough RON for the entered gas price. Please lower gas price or add more RON.")
@@ -534,9 +537,6 @@ def init():
         print(f"You do not have enough ETH to buy anything. Current cheapest filter price you have set is {cheapestFilter / (10 ** 18)} ETH and you only have {balance / (10 ** 18)} ETH. Exiting.")
         raise SystemExit
 
-    if filters == {}:
-        print("You must create at least 1 filter.")
-        return mainMenu()
     filterNames = list(filters.keys())
     print("Checking markets. This might take a few minutes, please be patient.")
     for filterName in filterNames:
@@ -622,24 +622,25 @@ def createFilter(filterName="", purchasePrice=0, newFilter=None, numAssets=0, as
                     filterValue = int(tempData[1])
                 except:
                     filterValue = tempData[1]
-                if filterType == "region":
-                    newFilter["region"] = "japan"
+                if filterType in ["auctionTypes", "stage", "page", "partTypes", "specialCollection"]:
                     continue
-                if filterType in ["auctionTypes", "stage", "page", "partTypes"]:
-                    continue
+                if filterType in ["numMystic", "numJapan", "numXmas", "numShiny", "numSummer"]:
+                    if filterType in newFilter:
+                        if filterValue < newFilter[filterType][0]:
+                            inc = -1
+                        else:
+                            inc = 1
+                        for i in range(newFilter[filterType][0]+inc, filterValue, inc):
+                            newFilter[filterType].append(i)
                 if filterType == "excludeParts":
                     filterType = "parts"
-                    if filterValue in newFilter['parts']:
+                    if filterType in newFilter and filterValue in newFilter['parts']:
                         newFilter['parts'][newFilter['parts'].index(filterValue)] = "!" + filterValue
                         continue
-                if filterType in ["mystic", "japan", "xmas", "shiny", "summer"]:
-                    filterType = "num" + filterType.capitalize()
-                if filterType == "class":
-                    filterType = "classes"
-                if filterType in ["part", "bodyShape"]:
-                    filterType = filterType + "s"
+                    else:
+                        filterValue = "!" + filterValue
                 if filterType == 'title':
-                    filterValue = filterValue.replace("-", " ")
+                    filterValue = filterValue.replace("+", " ")
                 if filterType == "type":
                     filterType = "landType"
                 if not filterType in newFilter:
