@@ -52,7 +52,7 @@ def approve():
     ).buildTransaction({
         'chainId': 2020,
         'gas': 481337,
-        'gasPrice': Web3.toWei(1, 'gwei'),
+        'gasPrice': Web3.to_wei(1, 'gwei'),
         'nonce': txUtils.getNonce(address)
     })
     signed_txn = txUtils.w3.eth.account.sign_transaction(send_txn, private_key=key)
@@ -80,9 +80,11 @@ def fetchRecent(types, attempts=0):
     except:
         if attempts >= 3:
             print("fetchRecent request")
-            print("something is wrong. exiting the program.")
+            print("Something is wrong.")
             print(traceback.format_exc())
-            raise SystemExit
+            return {}
+        print("Something failed with fetch recent request. Waiting 5 seconds.")
+        time.sleep(5)
         return fetchRecent(types, attempts + 1)
     try:
         temp = json.loads(response.text)['data'][types[0]]['total']
@@ -91,10 +93,12 @@ def fetchRecent(types, attempts=0):
     except:
         if attempts >= 3:
             print("fetchRecent")
-            print("something is wrong. exiting the program.")
+            print("Something is wrong.")
             print("response:\t" + response.text)
             print(traceback.format_exc())
-            raise SystemExit
+            return {}
+        print("Something failed with fetch recent. Waiting 5 seconds.")
+        time.sleep(5)
         return fetchRecent(types, attempts + 1)
 
 
@@ -163,7 +167,7 @@ def buyAsset(asset):
     ).buildTransaction({
         'chainId': 2020,
         'gas': 481337,
-        'gasPrice': Web3.toWei(int(gasPrice), 'gwei'),
+        'gasPrice': Web3.to_wei(int(gasPrice), 'gwei'),
         'nonce': txUtils.getNonce(address)
     })
     signedTx = txUtils.w3.eth.account.sign_transaction(marketTx, private_key=key)
@@ -178,7 +182,7 @@ def checkAxie(axie):
     for filterName in filters:
         if not filters[filterName]["type"] == "axies":
             continue
-        myPrice = Web3.toWei(filters[filterName]['price'], 'ether')
+        myPrice = Web3.to_wei(filters[filterName]['price'], 'ether')
         if myPrice >= int(axie['order']['currentPrice']):
             if int(axie['order']['endedPrice']) == 0 and int(axie['order']['endedAt']) == 0:
                 priceChange = 0
@@ -318,7 +322,7 @@ def checkLand(land):
     for filterName in filters:
         if not filters[filterName]["type"] == "lands":
             continue
-        myPrice = Web3.toWei(filters[filterName]['price'], 'ether')
+        myPrice = Web3.to_wei(filters[filterName]['price'], 'ether')
         if myPrice >= int(land['order']['currentPrice']):
             if int(land['order']['endedPrice']) == 0 and int(land['order']['endedAt']) == 0:
                 priceChange = 0
@@ -357,7 +361,7 @@ def checkItem(item):
     for filterName in filters:
         if not filters[filterName]["type"] == "items":
             continue
-        myPrice = Web3.toWei(filters[filterName]['price'], 'ether')
+        myPrice = Web3.to_wei(filters[filterName]['price'], 'ether')
         if myPrice >= int(item['order']['currentPrice']):
             if int(item['order']['endedPrice']) == 0 and int(item['order']['endedAt']) == 0:
                 priceChange = 0
@@ -411,6 +415,10 @@ def runLoop():
     while True:
         amountToSpend = 0
         market = fetchRecent(assetTypes)
+        if market == {}:
+            print("Failed to fetch recent. Axie servers might be having issues. Waiting 60 seconds.")
+            time.sleep(60)
+            continue
         for assetType in assetTypes:
             for asset in market['data'][assetType]['results']:
                 if 'id' in asset:
@@ -476,12 +484,12 @@ def runLoop():
                 f.write(json.dumps(filters))
             buyMore = False
             affordMore = False
-            cheapestFilter = Web3.toWei(99999, "ether")
+            cheapestFilter = Web3.to_wei(99999, "ether")
             balance = ethContract.functions.balanceOf(address).call()
             for filterName in filters:
                 if filters[filterName]['num'] > 0:
                     buyMore = True
-                myPrice = Web3.toWei(filters[filterName]['price'], 'ether')
+                myPrice = Web3.to_wei(filters[filterName]['price'], 'ether')
                 if myPrice < balance:
                     affordMore = True
                 if myPrice < cheapestFilter:
@@ -509,7 +517,7 @@ def init():
         print("You must create at least 1 filter.")
         return mainMenu()
     ronBalance = txUtils.w3.eth.getBalance(address)
-    if ronBalance < (481337 * Web3.toWei(int(gasPrice), 'gwei')):
+    if ronBalance < (481337 * Web3.to_wei(int(gasPrice), 'gwei')):
         print("You do not have enough RON for the entered gas price. Please lower gas price or add more RON.")
         raise SystemExit
 
@@ -524,11 +532,11 @@ def init():
         else:
             print(f"Approved at tx: {sentTx}")
 
-    cheapestFilter = Web3.toWei(99999, "ether")
+    cheapestFilter = Web3.to_wei(99999, "ether")
     affordMore = False
     balance = ethContract.functions.balanceOf(address).call()
     for filterName in filters:
-        myPrice = Web3.toWei(filters[filterName]['price'], 'ether')
+        myPrice = Web3.to_wei(filters[filterName]['price'], 'ether')
         if myPrice < balance:
             affordMore = True
         if myPrice < cheapestFilter:
@@ -543,7 +551,7 @@ def init():
         # this check is for current assets on the marketplace.
         # if there are 1 or more assets under the price you have set, it will ask you if you want to continue.
         myFilter = filters[filterName]['filter']
-        price = Web3.toWei(filters[filterName]['price'], 'ether')
+        price = Web3.to_wei(filters[filterName]['price'], 'ether')
         assetType = filters[filterName]['type']
         if assetType == "axies":
             market = axieFunctions.fetchMarket(accessToken, myFilter)
@@ -554,7 +562,7 @@ def init():
         else:
             print("Filter did match any of the availible types, something is wrong.")
             raise SystemExit
-        cheapest = Web3.toWei(99999, "ether")
+        cheapest = Web3.to_wei(99999, "ether")
         count = 0
         for asset in market['data'][assetType]['results']:
             if checkBugged(asset):

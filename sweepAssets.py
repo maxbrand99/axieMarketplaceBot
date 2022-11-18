@@ -54,7 +54,7 @@ def approve():
     ).buildTransaction({
         'chainId': 2020,
         'gas': 481337,
-        'gasPrice': Web3.toWei(1, 'gwei'),
+        'gasPrice': Web3.to_wei(1, 'gwei'),
         'nonce': txUtils.getNonce(address)
     })
     signed_txn = txUtils.w3.eth.account.sign_transaction(send_txn, private_key=key)
@@ -95,7 +95,7 @@ def buyAsset(asset):
     ).buildTransaction({
         'chainId': 2020,
         'gas': 481337,
-        'gasPrice': Web3.toWei(int(gasPrice), 'gwei'),
+        'gasPrice': Web3.to_wei(int(gasPrice), 'gwei'),
         'nonce': txUtils.getNonce(address)
     })
     signedTx = txUtils.w3.eth.account.sign_transaction(marketTx, private_key=key)
@@ -106,7 +106,7 @@ def runLoop(filterData):
     assetType = filterData['type']
     myFilter = filterData['filter']
     numAssets = filterData['num']
-    price = Web3.toWei(filterData['price'], 'ether')
+    price = Web3.to_wei(filterData['price'], 'ether')
     txs = []
     attemptedAssets = []
     attemptedTxs = {}
@@ -215,24 +215,25 @@ def createFilter(purchasePrice=0, newFilter=None, numAssets=0, assetType=""):
                     filterValue = int(tempData[1])
                 except:
                     filterValue = tempData[1]
-                if filterType == "region":
-                    newFilter["region"] = "japan"
+                if filterType in ["auctionTypes", "stage", "page", "partTypes", "specialCollection"]:
                     continue
-                if filterType in ["auctionTypes", "stage", "page", "partTypes"]:
-                    continue
+                if filterType in ["numMystic", "numJapan", "numXmas", "numShiny", "numSummer"]:
+                    if filterType in newFilter:
+                        if filterValue < newFilter[filterType][0]:
+                            inc = -1
+                        else:
+                            inc = 1
+                        for i in range(newFilter[filterType][0]+inc, filterValue, inc):
+                            newFilter[filterType].append(i)
                 if filterType == "excludeParts":
                     filterType = "parts"
-                    if filterValue in newFilter['parts']:
+                    if filterType in newFilter and filterValue in newFilter['parts']:
                         newFilter['parts'][newFilter['parts'].index(filterValue)] = "!" + filterValue
                         continue
-                if filterType in ["mystic", "japan", "xmas", "shiny", "summer"]:
-                    filterType = "num" + filterType.capitalize()
-                if filterType == "class":
-                    filterType = "classes"
-                if filterType in ["part", "bodyShape"]:
-                    filterType = filterType + "s"
+                    else:
+                        filterValue = "!" + filterValue
                 if filterType == 'title':
-                    filterValue = filterValue.replace("-", " ")
+                    filterValue = filterValue.replace("+", " ")
                 if filterType == "type":
                     filterType = "landType"
                 if not filterType in newFilter:
@@ -281,14 +282,14 @@ def init(filterData):
         choice = input("Would you like to use the current filter? (Y/N)\n")
         if not choice.lower() == "y":
             filterData = createFilter()
-    price = Web3.toWei(filterData['price'], 'ether')
+    price = Web3.to_wei(filterData['price'], 'ether')
     balance = ethContract.functions.balanceOf(address).call()
     if balance < price:
         print("You do not have enough ETH to buy anything. Current price you have set is " + str(price / (10 ** 18)) + " ETH and you only have " + str(balance / (10 ** 18)) + " ETH. Exiting.")
         raise SystemExit
 
     ronBalance = txUtils.w3.eth.getBalance(address)
-    if ronBalance < (481337 * Web3.toWei(int(gasPrice), 'gwei')):
+    if ronBalance < (481337 * Web3.to_wei(int(gasPrice), 'gwei')):
         print("You do not have enough RON for the entered gas price. Please lower gas price or add more RON.")
         raise SystemExit
 
