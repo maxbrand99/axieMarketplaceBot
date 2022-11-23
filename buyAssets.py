@@ -49,10 +49,10 @@ def approve():
     send_txn = ethContract.functions.approve(
         Web3.toChecksumAddress('0xfff9ce5f71ca6178d3beecedb61e7eff1602950e'),
         115792089237316195423570985008687907853269984665640564039457584007913129639935
-    ).buildTransaction({
+    ).build_transaction({
         'chainId': 2020,
         'gas': 481337,
-        'gasPrice': Web3.to_wei(1, 'gwei'),
+        'gasPrice': Web3.to_wei(20, 'gwei'),
         'nonce': txUtils.getNonce(address)
     })
     signed_txn = txUtils.w3.eth.account.sign_transaction(send_txn, private_key=key)
@@ -164,7 +164,7 @@ def buyAsset(asset):
                 425
             ]
         ])
-    ).buildTransaction({
+    ).build_transaction({
         'chainId': 2020,
         'gas': 481337,
         'gasPrice': Web3.to_wei(int(gasPrice), 'gwei'),
@@ -516,7 +516,7 @@ def init():
     if filters == {}:
         print("You must create at least 1 filter.")
         return mainMenu()
-    ronBalance = txUtils.w3.eth.getBalance(address)
+    ronBalance = txUtils.w3.eth.get_balance(address)
     if ronBalance < (481337 * Web3.to_wei(int(gasPrice), 'gwei')):
         print("You do not have enough RON for the entered gas price. Please lower gas price or add more RON.")
         raise SystemExit
