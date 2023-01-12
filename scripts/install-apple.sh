@@ -7,10 +7,11 @@ brew update && brew upgrade
 
 # python
 echo "Installing python "
-brew install python3 tmux
+brew install python3.9 tmux
 
 # python libs
 echo "Installing python libs"
 python3 -m pip install --upgrade pip
 pip3 install -U wheel
+pip3 install -U setuptools
 pip3 install -U -r requirements.txt

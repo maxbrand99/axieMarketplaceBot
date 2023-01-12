@@ -14,14 +14,14 @@ with open("abis.json") as file:
 
 def eth():
     ethAbi = abis['eth']
-    ethAddress = Web3.toChecksumAddress("0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5")
+    ethAddress = Web3.to_checksum_address("0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5")
     ethContract = w3.eth.contract(address=ethAddress, abi=ethAbi)
     return ethContract
 
 
 def marketplace():
     marketplaceAbi = abis['marketplace']
-    marketplaceAddress = Web3.toChecksumAddress("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
+    marketplaceAddress = Web3.to_checksum_address("0xfff9ce5f71ca6178d3beecedb61e7eff1602950e")
     marketplaceContract = w3.eth.contract(address=marketplaceAddress, abi=marketplaceAbi)
     return marketplaceContract
 
@@ -49,7 +49,7 @@ def sendTx(signedTxn, timeout=10):
 
 
 def getNonce(address):
-    address = Web3.toChecksumAddress(address)
+    address = Web3.to_checksum_address(address)
     nonce = w3.eth.get_transaction_count(address)
     if address in nonces:
         if nonces[address] < nonce:

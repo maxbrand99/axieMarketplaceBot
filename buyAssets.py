@@ -18,10 +18,10 @@ if True:
             key = input("Please enter your private key")
         if json_data['address'] == "ronin:YOUR_RONIN_ADDRESS":
             json_data['address'] = input("Please enter your ronin address")
-        if not Web3.isAddress(json_data['address'].replace("ronin:", "0x")):
+        if not Web3.is_address(json_data['address'].replace("ronin:", "0x")):
             print("Invalid address entered. Please try again. Both ronin: and 0x are accepted. Exiting.")
             raise SystemExit
-        address = Web3.toChecksumAddress(json_data['address'].replace("ronin:", "0x"))
+        address = Web3.to_checksum_address(json_data['address'].replace("ronin:", "0x"))
         accessToken = AccessToken.GenerateAccessToken(key, address)
         if not str(type(json_data['gasPrice'])) == "<class 'int'>":
             print("Invalid gas price entered. Must be a whole number. Exiting.")
@@ -47,7 +47,7 @@ if True:
 # This is the same amount that the ronin wallet approves.
 def approve():
     send_txn = ethContract.functions.approve(
-        Web3.toChecksumAddress('0xfff9ce5f71ca6178d3beecedb61e7eff1602950e'),
+        Web3.to_checksum_address('0xfff9ce5f71ca6178d3beecedb61e7eff1602950e'),
         115792089237316195423570985008687907853269984665640564039457584007913129639935
     ).build_transaction({
         'chainId': 2020,
@@ -56,7 +56,7 @@ def approve():
         'nonce': txUtils.getNonce(address)
     })
     signed_txn = txUtils.w3.eth.account.sign_transaction(send_txn, private_key=key)
-    sentTx = Web3.toHex(Web3.keccak(signed_txn.rawTransaction))
+    sentTx = Web3.to_hex(Web3.keccak(signed_txn.rawTransaction))
     txUtils.sendTx(signed_txn)
     return sentTx
 
@@ -110,16 +110,16 @@ def checkBugged(asset):
             marketplaceContract.encodeABI(fn_name='orderValid', args=[
                 order['hash'],
                 [
-                    Web3.toChecksumAddress(order['maker']),
+                    Web3.to_checksum_address(order['maker']),
                     1,
                     [[
                         1,
-                        Web3.toChecksumAddress(order['assets'][0]['address']),
+                        Web3.to_checksum_address(order['assets'][0]['address']),
                         int(order['assets'][0]['id']),
                         int(order['assets'][0]['quantity'])
                     ]],
                     int(order['expiredAt']),
-                    Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5"),
+                    Web3.to_checksum_address("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5"),
                     int(order['startedAt']),
                     int(order['basePrice']),
                     int(order['endedAt']),
@@ -142,19 +142,19 @@ def buyAsset(asset):
         marketplaceContract.encodeABI(fn_name='settleOrder', args=[
             0,
             int(order['currentPrice']),
-            Web3.toChecksumAddress("0xa8Da6b8948D011f063aF3aA8B6bEb417f75d1194"),
+            Web3.to_checksum_address("0xa8Da6b8948D011f063aF3aA8B6bEb417f75d1194"),
             order['signature'],
             [
-                Web3.toChecksumAddress(order['maker']),
+                Web3.to_checksum_address(order['maker']),
                 1,
                 [[
                     1,
-                    Web3.toChecksumAddress(order['assets'][0]['address']),
+                    Web3.to_checksum_address(order['assets'][0]['address']),
                     int(order['assets'][0]['id']),
                     int(order['assets'][0]['quantity'])
                 ]],
                 int(order['expiredAt']),
-                Web3.toChecksumAddress("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5"),
+                Web3.to_checksum_address("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5"),
                 int(order['startedAt']),
                 int(order['basePrice']),
                 int(order['endedAt']),
@@ -461,16 +461,16 @@ def runLoop():
                     txs.append(tx)
                     if 'id' in asset:
                         print(f"Attempting to buy Asset #{asset['id']} with filter {filterName}.")
-                        attemptedTxs[Web3.toHex(Web3.keccak(tx.rawTransaction))] = {'asset': asset['id'], 'name': filterName}
+                        attemptedTxs[Web3.to_hex(Web3.keccak(tx.rawTransaction))] = {'asset': asset['id'], 'name': filterName}
                         attemptedAssets.append(asset['id'])
                     else:
                         print(f"Attempting to buy Asset #{asset['tokenId']} with filter {filterName}.")
-                        attemptedTxs[Web3.toHex(Web3.keccak(tx.rawTransaction))] = {'asset': asset['tokenId'], 'name': filterName}
+                        attemptedTxs[Web3.to_hex(Web3.keccak(tx.rawTransaction))] = {'asset': asset['tokenId'], 'name': filterName}
                         attemptedAssets.append(asset['tokenId'])
         if len(txs) > 0:
             txUtils.sendTxThreads(txs)
             for tx in txs:
-                sentTx = Web3.toHex(Web3.keccak(tx.rawTransaction))
+                sentTx = Web3.to_hex(Web3.keccak(tx.rawTransaction))
                 receipt = txUtils.w3.eth.get_transaction_receipt(sentTx)
                 if not receipt.status == 1:
                     purchasedAssets -= 1
