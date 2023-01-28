@@ -64,7 +64,7 @@ def approve():
 def fetchRecent(types, attempts=0):
     url = "https://graphql-gateway.axieinfinity.com/graphql?r=maxbrand99&query={"
     if "axies" in types:
-        url += "axies(from:100,size:100,sort:Latest,auctionType:Sale,owner:null){total,results{id,class,stage,title,breedCount,bodyShape,newGenes,battleInfo{banned}order{...on%20Order{id,maker,kind,assets{...on%20Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}potentialPoints{beast,aquatic,plant,bug,bird,reptile,mech,dawn,dusk}}}"
+        url += "axies(from:0,size:100,sort:Latest,auctionType:Sale,owner:null){total,results{id,class,stage,title,breedCount,bodyShape,newGenes,battleInfo{banned}order{...on%20Order{id,maker,kind,assets{...on%20Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}potentialPoints{beast,aquatic,plant,bug,bird,reptile,mech,dawn,dusk}}}"
     if "lands" in types:
         url += "lands(from:0,size:100,sort:Latest,auctionType:Sale,owner:null){total,results{tokenId,landType,order{...on%20Order{id,maker,kind,assets{...on%20Asset{erc,address,id,quantity,orderId}}expiredAt,paymentToken,startedAt,basePrice,endedAt,endedPrice,expectedState,nonce,marketFeePercentage,signature,hash,duration,timeLeft,currentPrice,suggestedPrice,currentPriceUsd}}}}"
     if "items" in types:
