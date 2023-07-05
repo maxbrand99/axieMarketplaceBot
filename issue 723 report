@@ -1,0 +1,3 @@
+CreateAccessToken methon produce 400 code
+"Could not Create Access Token. Are the servers having issues?"
+./AccessToken.py GenerateAccessToken
