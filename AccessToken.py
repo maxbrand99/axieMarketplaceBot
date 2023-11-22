@@ -15,7 +15,7 @@ def GenerateAccessToken(key, address, attempts=0):
                 'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)'
             }
             
-            response = requests.request("POST", url, headers=headers, data=payload)
+            response = requests.request("GET", url, headers=headers)
             json_data = json.loads(response.text)
             return json_data
         except:
